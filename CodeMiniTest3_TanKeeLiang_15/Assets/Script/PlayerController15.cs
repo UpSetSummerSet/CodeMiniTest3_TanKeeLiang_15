@@ -7,16 +7,23 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController15 : MonoBehaviour
 {
-    float speed = 10.00f;
+    float speed = 6.00f;
+    float Timer = 10;
+    int PowerUpsCollected = 4;
+    bool ConeActivated = false;
+    float CountDown = 1;
+    float JumpForce = 8.0f;
+    float gravityModifier = 2.00f;
+    int SpaceTrack = 2;
 
     public Animator playerAnim;
     public GameObject TimeCounter;
-    float Timer = 10;
-    int PowerUpsCollected = 4;
     public Animator PlaneBAnim;
-    bool ConeActivated = false;
-    float CountDown = 1;
     public bool isHitBox = false;
+
+    public Rigidbody playerRb;
+    public Renderer playerRen;
+    public Material[] playerMtrs;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +33,8 @@ public class PlayerController15 : MonoBehaviour
             TimeCounter.GetComponent<Text>().text = "Time Left: " + Timer.ToString("0");
         }
         Debug.Log(PowerUpsCollected);
+
+        Physics.gravity *= gravityModifier;
     }
 
     // Update is called once per frame
@@ -65,14 +74,7 @@ public class PlayerController15 : MonoBehaviour
             playerAnim.SetBool("IsSprint", false);
             playerAnim.SetFloat("IsRun", 0.25f);
         }
-        /*if (Input.GetKeyDown(KeyCode.Space))
-        {
-            playerAnim.SetBool("IsJump", true);
-        }
-        else if(Input.GetKeyUp(KeyCode.Space))
-        {
-            playerAnim.SetBool("IsJump", false);
-        }
+        /*
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Timer--;
@@ -84,16 +86,33 @@ public class PlayerController15 : MonoBehaviour
             TimeCounter.GetComponent<Text>().text = "Time Left: " + Timer.ToString("0");
             Timer -= CountDown * Time.deltaTime;
         }
-        else
+        else if(Timer >= 0)
         {
-            TimeCounter.GetComponent<Text>().text = "" + "";
             PlaneBAnim.SetBool("ConeActivated", false);
+            TimeCounter.GetComponent<Text>().text = "" + "";
         }
+
+        Jumpforce();
     }
 
     void StartRun()
     {
         transform.Translate(Vector3.forward * Time.deltaTime * speed);
+    }
+    private void Jumpforce()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && SpaceTrack > 1)
+        {
+            SpaceTrack--;
+            playerRb.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
+            playerAnim.SetBool("IsJump", true);
+
+            playerRen.material.color = playerMtrs[0].color;
+        }
+        else if (Input.GetKeyUp(KeyCode.Space))
+        {
+            playerAnim.SetBool("IsJump", false);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -113,9 +132,17 @@ public class PlayerController15 : MonoBehaviour
         {
             SceneManager.LoadScene("YouLose");
         }
-        if (other.gameObject.CompareTag("HitBox"))
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("HitBox"))
         {
             isHitBox = true;
+        }
+        if (collision.gameObject.CompareTag("PlayPlane"))
+        {
+            SpaceTrack = 2;
+            playerRen.material.color = playerMtrs[1].color;
         }
     }
 }
