@@ -99,6 +99,7 @@ public class PlayerController15 : MonoBehaviour
     {
         transform.Translate(Vector3.forward * Time.deltaTime * speed);
     }
+
     private void Jumpforce()
     {
         if (Input.GetKeyDown(KeyCode.Space) && SpaceTrack > 1)
@@ -117,11 +118,15 @@ public class PlayerController15 : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("TagCone"))
+        if (PowerUpsCollected == 0 && other.gameObject.CompareTag("TagCone"))
         {
-            ConeActivated = true;
-            PlaneBAnim.SetBool("ConeActivated", true);
-            Debug.Log("Actived PlaneB 90deg rotation");
+                ConeActivated = true;
+                PlaneBAnim.SetBool("ConeActivated", true);
+                Debug.Log("Actived PlaneB 90deg rotation");
+        }
+        else if (PowerUpsCollected > 1 && other.gameObject.CompareTag("TagCone"))
+        {
+            Debug.Log("You need to collect all the power ups to activate this");
         }
         if (other.gameObject.CompareTag("PowerUp"))
         {
